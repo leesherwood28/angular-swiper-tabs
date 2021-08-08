@@ -36,4 +36,5 @@ app-swiper-tab-header {
 .tab-content {
   width: 100%;
   flex: 100% 0 0;
+  user-select: none;
 }
