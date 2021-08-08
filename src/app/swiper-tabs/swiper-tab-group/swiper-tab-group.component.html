@@ -1,6 +1,15 @@
 <div class="header">
-  <app-swiper-tab-header *ngFor="let tab of tabs; index as i" [label]="tab.label" (click)="setActiveIndex(i)">
-  </app-swiper-tab-header>
+  <div class="center-header">
+    <div class="tab-headers">
+      <app-swiper-tab-header *ngFor="let tab of tabs; index as i" [label]="tab.label" (click)="setActiveIndex(i)">
+      </app-swiper-tab-header>
+    </div>
+    <div class="active-indicator-container">
+      <div class="active-indicator" [style.--translate-x]="headerTranslateX$ | async">
+      </div>
+    </div>
+
+  </div>
 </div>
 <div class="tab-body" [style.--translate-x]="tabTranslateX$ | async">
   <div class="tabs">

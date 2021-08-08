@@ -4,7 +4,8 @@ import {
   ElementRef,
   OnInit,
   Query,
-  QueryList
+  QueryList,
+  ViewChildren
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { BehaviorSubject, Subject, combineLatest } from 'rxjs';
@@ -28,13 +29,21 @@ export class SwiperTabGroupComponent implements OnInit {
     this.hostWidth$
   ]).pipe(
     map(([activeIndex, hostWidth]) => -activeIndex * hostWidth),
+    debounceTime(0)
+  );
+
+  readonly headerTranslateX$ = combineLatest([
+    this.activeIndex$,
+    this.headerWidth$
+  ]).pipe(
+    map(([activeIndex, headerWidth]) => activeIndex * headerWidth),
     debounceTime(0),
     tap(i => console.log(i))
   );
 
   @ContentChildren(SwiperTabComponent) tabs: QueryList<SwiperTabComponent>;
 
-  @ContentChildren(SwiperTabHeaderComponent) headers: QueryList<
+  @ViewChildren(SwiperTabHeaderComponent) headers: QueryList<
     SwiperTabHeaderComponent
   >;
 
