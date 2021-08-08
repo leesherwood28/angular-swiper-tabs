@@ -11,7 +11,7 @@
 
   </div>
 </div>
-<div class="tab-body" [style.--translate-x]="tabTranslateX$ | async">
+<div class="tab-body" [style.--translate-x]="tabTranslateX$ | async" (pan)="onPan($event)">
   <div class="tabs">
     <div class="tab-content" *ngFor="let tab of tabs">
       <ng-container [ngTemplateOutlet]=tab.contentRef></ng-container>

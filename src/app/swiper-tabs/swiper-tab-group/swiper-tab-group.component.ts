@@ -72,4 +72,8 @@ export class SwiperTabGroupComponent implements OnInit {
   setActiveIndex(index: number) {
     this.activeIndex$.next(index);
   }
+
+  onPan(e) {
+    console.log(e);
+  }
 }
