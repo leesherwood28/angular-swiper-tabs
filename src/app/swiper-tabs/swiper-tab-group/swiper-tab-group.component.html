@@ -1,9 +1,12 @@
 <div class="header">
-  <app-swiper-tab-header *ngFor="let tab of tabs" [label]="tab.label">
+  <app-swiper-tab-header *ngFor="let tab of tabs; index as i" [label]="tab.label" (click)="setActiveIndex(i)">
   </app-swiper-tab-header>
 </div>
-<div class="body">
-  <div class="tab-content" *ngFor="let tab of tabs">
-    <ng-container [ngTemplateOutlet]=tab.contentRef></ng-container>
+<div class="tab-body" [style.--translate-x]="tabTranslateX$ | async">
+  <div class="tabs">
+    <div class="tab-content" *ngFor="let tab of tabs">
+      <ng-container [ngTemplateOutlet]=tab.contentRef></ng-container>
+    </div>
   </div>
+
 </div>

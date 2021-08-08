@@ -5,10 +5,15 @@
   display: flex;
   justify-content: center;
 }
-.body {
+.tab-body {
+  width: 100%;
+  overflow-x: hidden;
+
+}
+.tabs {
   width: 100%;
   display: flex;
-  overflow-x: hidden;
+  transform: translateX(calc(var(--translate-x) * 1px));
 }
 .tab-content {
   width: 100%;
