@@ -3,7 +3,7 @@
   </app-swiper-tab-header>
 </div>
 <div class="body">
-  <div class="tab-content">
-    <ng-container *ngFor="let tab of tabs" [ngTemplateOutlet]=tab.contentRef></ng-container>
+  <div class="tab-content" *ngFor="let tab of tabs">
+    <ng-container [ngTemplateOutlet]=tab.contentRef></ng-container>
   </div>
 </div>
