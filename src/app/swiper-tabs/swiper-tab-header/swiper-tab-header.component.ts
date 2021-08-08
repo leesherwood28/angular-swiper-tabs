@@ -1,4 +1,11 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output
+} from '@angular/core';
 
 @Component({
   selector: 'app-swiper-tab-header',
@@ -7,7 +14,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 })
 export class SwiperTabHeaderComponent implements OnInit {
   @Input() label: string;
-  constructor() {}
+  constructor(public element: ElementRef<HTMLElement>) {}
 
   ngOnInit() {}
 }
