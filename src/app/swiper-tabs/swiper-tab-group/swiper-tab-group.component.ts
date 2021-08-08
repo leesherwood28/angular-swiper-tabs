@@ -37,8 +37,7 @@ export class SwiperTabGroupComponent implements OnInit {
     this.headerWidth$
   ]).pipe(
     map(([activeIndex, headerWidth]) => activeIndex * headerWidth),
-    debounceTime(0),
-    tap(i => console.log(i))
+    debounceTime(0)
   );
 
   @ContentChildren(SwiperTabComponent) tabs: QueryList<SwiperTabComponent>;
