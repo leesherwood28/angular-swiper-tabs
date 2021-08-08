@@ -5,10 +5,12 @@
   display: flex;
   justify-content: center;
 }
+app-swiper-tab-header {
+  flex: 0 0 20%;
+}
 .tab-body {
   width: 100%;
   overflow-x: hidden;
-
 }
 .tabs {
   width: 100%;
