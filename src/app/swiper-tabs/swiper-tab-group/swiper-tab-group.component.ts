@@ -36,9 +36,7 @@ export class SwiperTabGroupComponent implements OnInit {
     private sanitizer: DomSanitizer
   ) {}
 
-  ngOnInit() {
-    this.tabTranslateX$.subscribe(console.log);
-  }
+  ngOnInit() {}
 
   ngAfterViewInit() {
     this.populateHostWidth();
