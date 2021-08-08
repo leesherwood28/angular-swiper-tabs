@@ -8,6 +8,7 @@
 .body {
   width: 100%;
   display: flex;
+  overflow-x: hidden;
 }
 .tab-content {
   width: 100%;
