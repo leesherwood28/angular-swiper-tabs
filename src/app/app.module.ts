@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { Injectable, NgModule } from '@angular/core';
 import {
   BrowserModule,
   HammerModule,
@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { HelloComponent } from './hello.component';
 import * as Hammer from 'hammerjs';
+import { SwiperTabsModule } from './swiper-tabs/swiper-tabs.module';
 
 @Injectable()
 export class MyHammerConfig extends HammerGestureConfig {
@@ -19,7 +20,7 @@ export class MyHammerConfig extends HammerGestureConfig {
 }
 
 @NgModule({
-  imports: [BrowserModule, FormsModule, HammerModule],
+  imports: [BrowserModule, FormsModule, HammerModule, SwiperTabsModule],
   declarations: [AppComponent, HelloComponent],
   bootstrap: [AppComponent],
   providers: [
