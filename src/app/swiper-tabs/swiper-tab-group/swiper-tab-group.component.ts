@@ -102,13 +102,14 @@ function processPan(state: State, pan: Pan): State {
 }
 
 function getIndexFromPan(pan: Pan, state: State): number {
-  const currentTabPosition = getPosition(state.hostWidth, state.activeIndex);
-  const movement = Math.abs(currentTabPosition - pan.position);
-  const movedTabs =
-    (Math.abs(movement) + state.hostWidth / 2) / state.hostWidth;
+  const movedTabs = Math.floor(
+    (Math.abs(pan.position) + state.hostWidth / 2) / state.hostWidth
+  );
   const direction = pan.position > 0 ? 'left' : 'right';
   const newTab =
-    currentTabPosition + (direction === 'right' ? 1 : -1) * movedTabs;
+    state.activeIndex + (direction === 'right' ? 1 : -1) * movedTabs;
+
+  console.log(movedTabs);
   if (newTab >= state.tabCount) {
     return state.tabCount - 1;
   }
@@ -154,16 +155,16 @@ export class SwiperTabGroupComponent implements OnInit {
 
   // Outputs
 
+  readonly tabTranslateX$ = this.state$.pipe(
+    map(s => s.tabPosition),
+    debounceTime(0, animationFrameScheduler)
+  );
+
   readonly tabTranslateX1$ = combineLatest([
     this.requestedIndex$,
     this.hostWidth$
   ]).pipe(
     map(([activeIndex, hostWidth]) => -activeIndex * hostWidth),
-    debounceTime(0)
-  );
-
-  readonly tabTranslateX$ = combineLatest([this.panning$]).pipe(
-    map(([e]) => e.position),
     debounceTime(0)
   );
 
