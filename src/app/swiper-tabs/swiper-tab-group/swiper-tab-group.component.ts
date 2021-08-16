@@ -8,7 +8,6 @@ import {
   ViewChildren,
   ChangeDetectionStrategy
 } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
 import {
   BehaviorSubject,
   Subject,
@@ -34,73 +33,62 @@ import { SwiperTabHeaderComponent } from '../swiper-tab-header/swiper-tab-header
 import { SwiperTabComponent } from '../swiper-tab/swiper-tab.component';
 import { cubicInOut, elasticInOut, tween } from './swiper-tab-group-animation';
 
-export interface Pan {
+interface Pan {
   position: number;
   velocity: number;
   isPanning: boolean;
 }
 
-export type StateInput =
+type TabStateInput =
   | { type: 'pan'; pan: Pan }
   | { type: 'tabWidth'; tabWidth: number }
   | { type: 'requestedIndex'; requestedIndex: number };
 
-export interface State {
+interface TabState {
   activeIndex: number;
   tabCount: number;
   position?: number;
   tabWidth?: number;
   animating?: boolean;
 }
-function scanState(state: State, input: StateInput) {
+function applyInputToTabState(state: TabState, input: TabStateInput) {
   state = { ...state };
   if (input.type === 'tabWidth') {
     state.tabWidth = input.tabWidth;
     return state;
   }
   if (input.type === 'pan') {
-    return processPan(state, input.pan);
+    return applyPanToTabState(state, input.pan);
   }
   if (input.type === 'requestedIndex') {
-    return processRequestedIndexChange(state, input.requestedIndex);
+    return applyIndexChangeToTabState(state, input.requestedIndex);
   }
 }
 
-function setStatePositionToIndex(state: State): State {
-  return {
-    ...state,
-    position: state.activeIndex
-  };
-}
-
-function processRequestedIndexChange(
-  state: State,
+function applyIndexChangeToTabState(
+  state: TabState,
   requestedIndex: number
-): State {
+): TabState {
   state.activeIndex = requestedIndex;
-  state = setStatePositionToIndex(state);
+  state.position = requestedIndex;
   state.animating = true;
   return state;
 }
 
-function processPan(state: State, pan: Pan): State {
+function applyPanToTabState(state: TabState, pan: Pan): TabState {
   if (state.tabWidth == null) {
     return state;
   }
   if (pan.isPanning) {
-    state = setStatePositionToIndex(state);
-    state.position += -pan.position / state.tabWidth;
+    state.position = state.activeIndex - pan.position / state.tabWidth;
     state.animating = false;
     return state;
   }
   const newIndex = getIndexFromPan(pan, state);
-  state.activeIndex = newIndex;
-  state = setStatePositionToIndex(state);
-  state.animating = true;
-  return state;
+  return applyIndexChangeToTabState(state, newIndex);
 }
 
-function getIndexFromPan(pan: Pan, state: State): number {
+function getIndexFromPan(pan: Pan, state: TabState): number {
   const movedTabs = Math.floor(
     (Math.abs(pan.position) + state.tabWidth / 2) / state.tabWidth
   );
@@ -119,8 +107,8 @@ function getIndexFromPan(pan: Pan, state: State): number {
   return newTab;
 }
 
-function animatedTabPosition(): OperatorFunction<State, number> {
-  return (source: Observable<State>) =>
+function animateTabPosition(): OperatorFunction<TabState, number> {
+  return (source: Observable<TabState>) =>
     source.pipe(
       startWith(null),
       pairwise(),
@@ -148,7 +136,7 @@ export class SwiperTabGroupComponent implements OnInit {
   readonly panning$ = new Subject<Pan>();
 
   // State
-  readonly initState: State = { activeIndex: 0, tabCount: 3, position: 0 };
+  readonly initState: TabState = { activeIndex: 0, tabCount: 3, position: 0 };
 
   readonly state$ = merge(
     this.requestedIndex$.pipe(
@@ -164,12 +152,14 @@ export class SwiperTabGroupComponent implements OnInit {
       debounceTime(0, animationFrameScheduler),
       map(pan => ({ type: 'pan' as const, pan }))
     )
-  ).pipe(scan((state, input) => scanState(state, input), this.initState));
+  ).pipe(
+    scan((state, input) => applyInputToTabState(state, input), this.initState)
+  );
 
   // Outputs
 
   readonly translateX$ = this.state$.pipe(
-    animatedTabPosition(),
+    animateTabPosition(),
     debounceTime(0, animationFrameScheduler),
     shareReplay(1)
   );
@@ -195,10 +185,7 @@ export class SwiperTabGroupComponent implements OnInit {
     SwiperTabHeaderComponent
   >;
 
-  constructor(
-    private host: ElementRef<HTMLElement>,
-    private sanitizer: DomSanitizer
-  ) {}
+  constructor(private host: ElementRef<HTMLElement>) {}
 
   ngOnInit() {}
 
