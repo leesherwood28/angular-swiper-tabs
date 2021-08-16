@@ -5,7 +5,8 @@ import {
   OnInit,
   Query,
   QueryList,
-  ViewChildren
+  ViewChildren,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
@@ -134,7 +135,8 @@ function animatedTabPosition(): OperatorFunction<State, number> {
 @Component({
   selector: 'app-swiper-tab-group',
   templateUrl: './swiper-tab-group.component.html',
-  styleUrls: ['./swiper-tab-group.component.css']
+  styleUrls: ['./swiper-tab-group.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SwiperTabGroupComponent implements OnInit {
   // Input observables
