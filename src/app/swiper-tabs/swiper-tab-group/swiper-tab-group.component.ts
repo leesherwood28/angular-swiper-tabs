@@ -78,11 +78,9 @@ function processPan(state: State, pan: Pan): State {
     state = setStatePositionToIndex(state);
     state.position += -pan.position / state.tabWidth;
     state.animating = false;
-    console.log(state.position);
     return state;
   }
   const newIndex = getIndexFromPan(pan, state);
-  console.log(newIndex);
   state.activeIndex = newIndex;
   state = setStatePositionToIndex(state);
   state.animating = true;
