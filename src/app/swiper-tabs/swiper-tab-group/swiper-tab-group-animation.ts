@@ -5,7 +5,7 @@ import {
   interval,
   OperatorFunction
 } from 'rxjs';
-import { map, pairwise, switchMap, takeWhile } from 'rxjs/operators';
+import { map, pairwise, switchMap, takeWhile, tap } from 'rxjs/operators';
 
 export function elasticInOut(t: number) {
   return t < 0.5
@@ -49,7 +49,7 @@ export function tween(
         duration(ms).pipe(
           map(easing),
           map(distance(n - p)),
-          map(addedDistance => n + addedDistance)
+          map(addedDistance => p + addedDistance)
         )
       )
     );

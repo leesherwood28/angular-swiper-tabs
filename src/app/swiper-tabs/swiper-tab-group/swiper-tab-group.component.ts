@@ -121,10 +121,11 @@ function animatedTabPosition(): OperatorFunction<State, number> {
     source.pipe(
       pairwise(),
       switchMap(([p, n]) => {
+        return of(p.position, n.position).pipe(tween(200, elasticInOut));
         if (n.animating) {
-          return of(n.position);
+          return of(p.position, n.position).pipe(tween(200, elasticInOut));
         } else {
-          return of(p.position, n.position).pipe(tween(2000, elasticInOut));
+          return of(n.position);
         }
       })
     );
