@@ -5,6 +5,8 @@
 .tab-content {
   padding: 2rem;
   font-size: 2rem;
+  min-height: 200px;
+  background-color: whitesmoke;
   display: flex;
   align-items: center;
   justify-content: center;
