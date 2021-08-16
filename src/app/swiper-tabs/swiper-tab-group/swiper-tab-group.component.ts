@@ -105,9 +105,11 @@ function getIndexFromPan(pan: Pan, state: State): number {
     (Math.abs(pan.position) + state.tabWidth / 2) / state.tabWidth
   );
   const direction = pan.position > 0 ? 'left' : 'right';
-  const newTab =
-    state.activeIndex + (direction === 'right' ? 1 : -1) * movedTabs;
+  let newTab = state.activeIndex + (direction === 'right' ? 1 : -1) * movedTabs;
 
+  if (Math.abs(pan.velocity) > 0.5 && newTab === state.activeIndex) {
+    newTab += direction === 'left' ? -1 : 1;
+  }
   if (newTab >= state.tabCount) {
     return state.tabCount - 1;
   }
