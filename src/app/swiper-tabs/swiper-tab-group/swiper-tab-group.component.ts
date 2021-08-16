@@ -214,6 +214,5 @@ export class SwiperTabGroupComponent implements OnInit {
       isPanning: !e.isFinal,
       velocity: e.velocityX
     });
-    console.log(e);
   }
 }
