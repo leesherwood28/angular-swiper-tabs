@@ -31,7 +31,7 @@ import {
 } from 'rxjs/operators';
 import { SwiperTabHeaderComponent } from '../swiper-tab-header/swiper-tab-header.component';
 import { SwiperTabComponent } from '../swiper-tab/swiper-tab.component';
-import { cubicInOut, elasticInOut, tween } from './swiper-tab-group-animation';
+import { cubicInOut, tween } from './swiper-tab-group-animation';
 
 interface Pan {
   position: number;
