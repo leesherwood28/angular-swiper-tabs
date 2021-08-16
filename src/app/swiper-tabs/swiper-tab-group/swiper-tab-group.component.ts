@@ -144,7 +144,7 @@ export class SwiperTabGroupComponent implements OnInit {
   readonly panning$ = new Subject<Pan>();
 
   // State
-  readonly initState: State = { activeIndex: 0, tabCount: 3 };
+  readonly initState: State = { activeIndex: 0, tabCount: 3, position: 0 };
 
   readonly state$ = merge(
     this.requestedIndex$.pipe(
