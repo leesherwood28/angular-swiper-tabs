@@ -14,7 +14,8 @@ import {
   combineLatest,
   OperatorFunction,
   Observable,
-  merge
+  merge,
+  animationFrameScheduler
 } from 'rxjs';
 import { debounceTime, map, scan, startWith, tap } from 'rxjs/operators';
 import { SwiperTabHeaderComponent } from '../swiper-tab-header/swiper-tab-header.component';
@@ -145,7 +146,10 @@ export class SwiperTabGroupComponent implements OnInit {
     this.headerWidth$.pipe(
       map(headerWidth => ({ type: 'headerWidth' as const, headerWidth }))
     ),
-    this.panning$.pipe(map(pan => ({ type: 'pan' as const, pan })))
+    this.panning$.pipe(
+      debounceTime(0, animationFrameScheduler),
+      map(pan => ({ type: 'pan' as const, pan }))
+    )
   ).pipe(scan((state, input) => scanState(state, input), this.initState));
 
   // Outputs
