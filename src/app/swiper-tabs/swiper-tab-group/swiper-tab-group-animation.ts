@@ -18,6 +18,10 @@ export function elasticInOut(t: number) {
         1.0;
 }
 
+export function cubicInOut(t: number): number {
+  return t < 0.5 ? 4.0 * t * t * t : 0.5 * Math.pow(2.0 * t - 2.0, 3.0) + 1.0;
+}
+
 function duration(ms: number) {
   return msElapsed().pipe(
     map(ems => ems / ms),

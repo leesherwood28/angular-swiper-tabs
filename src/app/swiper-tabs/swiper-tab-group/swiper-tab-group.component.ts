@@ -31,7 +31,7 @@ import {
 } from 'rxjs/operators';
 import { SwiperTabHeaderComponent } from '../swiper-tab-header/swiper-tab-header.component';
 import { SwiperTabComponent } from '../swiper-tab/swiper-tab.component';
-import { elasticInOut, tween } from './swiper-tab-group-animation';
+import { cubicInOut, elasticInOut, tween } from './swiper-tab-group-animation';
 
 export interface Pan {
   position: number;
@@ -119,11 +119,11 @@ function getIndexFromPan(pan: Pan, state: State): number {
 function animatedTabPosition(): OperatorFunction<State, number> {
   return (source: Observable<State>) =>
     source.pipe(
+      startWith(null),
       pairwise(),
       switchMap(([p, n]) => {
-        return of(p.position, n.position).pipe(tween(200, elasticInOut));
-        if (n.animating) {
-          return of(p.position, n.position).pipe(tween(200, elasticInOut));
+        if (n.animating && p !== null) {
+          return of(p.position, n.position).pipe(tween(200, cubicInOut));
         } else {
           return of(n.position);
         }
@@ -166,6 +166,7 @@ export class SwiperTabGroupComponent implements OnInit {
 
   readonly translateX$ = this.state$.pipe(
     animatedTabPosition(),
+    debounceTime(0, animationFrameScheduler),
     shareReplay(1)
   );
 
