@@ -84,12 +84,12 @@ function processRequestedIndexChange(
 }
 
 function processPan(state: State, pan: Pan): State {
-  if (state.hostWidth == null) {
+  if (state.hostWidth == null || state.headerWidth == null) {
     return state;
   }
   if (pan.isPanning) {
     state = updateStatePositionOnIndex(state);
-    state.headerPosition += pan.position;
+    state.headerPosition = getPannedHeaderPosition(state, pan);
     state.tabPosition += pan.position;
     state.animating = false;
     return state;
@@ -99,6 +99,19 @@ function processPan(state: State, pan: Pan): State {
   state = updateStatePositionOnIndex(state);
   state.animating = true;
   return state;
+}
+
+function getPannedHeaderPosition(state: State, pan: Pan): number {
+  const position =
+    state.headerPosition + (pan.position * state.headerWidth) / state.hostWidth;
+  if (position > 0) {
+    return 0;
+  }
+  const maxMoveRight = (state.tabCount - 1) * state.headerWidth;
+  if (position <= -maxMoveRight) {
+    return -maxMoveRight;
+  }
+  return position;
 }
 
 function getIndexFromPan(pan: Pan, state: State): number {
@@ -160,20 +173,9 @@ export class SwiperTabGroupComponent implements OnInit {
     debounceTime(0, animationFrameScheduler)
   );
 
-  readonly tabTranslateX1$ = combineLatest([
-    this.requestedIndex$,
-    this.hostWidth$
-  ]).pipe(
-    map(([activeIndex, hostWidth]) => -activeIndex * hostWidth),
-    debounceTime(0)
-  );
-
-  readonly headerTranslateX$ = combineLatest([
-    this.requestedIndex$,
-    this.headerWidth$
-  ]).pipe(
-    map(([activeIndex, headerWidth]) => activeIndex * headerWidth),
-    debounceTime(0)
+  readonly headerTranslateX$ = this.state$.pipe(
+    map(s => -s.headerPosition),
+    debounceTime(0, animationFrameScheduler)
   );
 
   @ContentChildren(SwiperTabComponent) tabs: QueryList<SwiperTabComponent>;
