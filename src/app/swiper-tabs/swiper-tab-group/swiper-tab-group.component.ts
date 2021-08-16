@@ -15,13 +15,23 @@ import {
   OperatorFunction,
   Observable,
   merge,
-  animationFrameScheduler
+  animationFrameScheduler,
+  of
 } from 'rxjs';
-import { debounceTime, map, scan, startWith, tap } from 'rxjs/operators';
+import {
+  debounceTime,
+  map,
+  mergeMap,
+  pairwise,
+  scan,
+  shareReplay,
+  startWith,
+  switchMap,
+  tap
+} from 'rxjs/operators';
 import { SwiperTabHeaderComponent } from '../swiper-tab-header/swiper-tab-header.component';
 import { SwiperTabComponent } from '../swiper-tab/swiper-tab.component';
-
-
+import { elasticInOut, tween } from './swiper-tab-group-animation';
 
 export interface Pan {
   position: number;
@@ -106,6 +116,20 @@ function getIndexFromPan(pan: Pan, state: State): number {
   return newTab;
 }
 
+function animatedTabPosition(): OperatorFunction<State, number> {
+  return (source: Observable<State>) =>
+    source.pipe(
+      pairwise(),
+      switchMap(([p, n]) => {
+        if (n.animating) {
+          return of(n.position);
+        } else {
+          return of(p.position, n.position).pipe(tween(2000, elasticInOut));
+        }
+      })
+    );
+}
+
 @Component({
   selector: 'app-swiper-tab-group',
   templateUrl: './swiper-tab-group.component.html',
@@ -139,22 +163,24 @@ export class SwiperTabGroupComponent implements OnInit {
 
   // Outputs
 
-  readonly tabTranslateX$ = this.state$.pipe(
-    map(s => s.position),
-    debounceTime(0, animationFrameScheduler)
+  readonly translateX$ = this.state$.pipe(
+    animatedTabPosition(),
+    shareReplay(1)
   );
 
-  readonly headerTranslateX$ = this.state$.pipe(
-    map(s => {
-      if (s.position > s.tabCount - 1) {
-        return s.tabCount - 1;
+  readonly headerTranslateX$ = combineLatest([
+    this.translateX$,
+    this.state$
+  ]).pipe(
+    map(([position, state]) => {
+      if (position > state.tabCount - 1) {
+        return state.tabCount - 1;
       }
-      if (s.position <= 0) {
+      if (position <= 0) {
         return 0;
       }
-      return s.position;
-    }),
-    debounceTime(0, animationFrameScheduler)
+      return position;
+    })
   );
 
   @ContentChildren(SwiperTabComponent) tabs: QueryList<SwiperTabComponent>;

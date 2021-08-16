@@ -1,4 +1,10 @@
-import { Observable, defer, animationFrameScheduler, interval, OperatorFunction } from 'rxjs';
+import {
+  Observable,
+  defer,
+  animationFrameScheduler,
+  interval,
+  OperatorFunction
+} from 'rxjs';
 import { map, pairwise, switchMap, takeWhile } from 'rxjs/operators';
 
 export function elasticInOut(t: number) {
@@ -11,7 +17,6 @@ export function elasticInOut(t: number) {
         Math.pow(2.0, -10.0 * (2.0 * t - 1.0)) +
         1.0;
 }
-
 
 function duration(ms: number) {
   return msElapsed().pipe(
@@ -29,17 +34,23 @@ function msElapsed() {
   });
 }
 
-function distance(distance: number) {
-  return (time: number) => distance * time; 
+function distance(distance: number): (a: number) => number {
+  return (time: number) => distance * time;
 }
 
-function tween(ms: number, easing: (a: number) => number): OperatorFunction<number, number> {
-  return (source: Observable<number>) => source.pipe(
-    pairwise(),
-    switchMap(([p, n]) => 
-      duration(ms).pipe(
-        map(easing),
-        map(distance(n - p)),
-        map(addedDistance => n + addedDistance)
-  )));
+export function tween(
+  ms: number,
+  easing: (a: number) => number
+): OperatorFunction<number, number> {
+  return (source: Observable<number>) =>
+    source.pipe(
+      pairwise(),
+      switchMap(([p, n]) =>
+        duration(ms).pipe(
+          map(easing),
+          map(distance(n - p)),
+          map(addedDistance => n + addedDistance)
+        )
+      )
+    );
 }
