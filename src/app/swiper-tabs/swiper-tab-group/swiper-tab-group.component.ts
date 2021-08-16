@@ -143,7 +143,15 @@ export class SwiperTabGroupComponent implements OnInit {
   );
 
   readonly headerTranslateX$ = this.state$.pipe(
-    map(s => -s.position),
+    map(s => {
+      if (s.position > s.tabCount - 1) {
+        return s.tabCount - 1;
+      }
+      if (s.position <= 0) {
+        return 0;
+      }
+      return s.position;
+    }),
     debounceTime(0, animationFrameScheduler)
   );
 
