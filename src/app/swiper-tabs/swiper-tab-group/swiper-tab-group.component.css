@@ -19,7 +19,7 @@
 .active-indicator {
   border-bottom: 2px solid blue;
   flex: 0 0 33%;
-  transform: translateX(calc(var(--translate-x) * 1px));
+  transform: translateX(calc(var(--translate-x) * -100%));
 }
 app-swiper-tab-header {
   flex: 0 0 33.33%;
@@ -31,7 +31,7 @@ app-swiper-tab-header {
 .tabs {
   width: 100%;
   display: flex;
-  transform: translateX(calc(var(--translate-x) * 1px));
+  transform: translateX(calc(var(--translate-x) * 100%));
 }
 .tab-content {
   width: 100%;

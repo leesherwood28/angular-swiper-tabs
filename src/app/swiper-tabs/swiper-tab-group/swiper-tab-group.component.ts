@@ -29,32 +29,20 @@ export interface Pan {
 
 export type StateInput =
   | { type: 'pan'; pan: Pan }
-  | { type: 'hostWidth'; hostWidth: number }
-  | { type: 'headerWidth'; headerWidth: number }
+  | { type: 'tabWidth'; tabWidth: number }
   | { type: 'requestedIndex'; requestedIndex: number };
 
 export interface State {
   activeIndex: number;
   tabCount: number;
-  headerPosition?: number;
-  tabPosition?: number;
-  hostWidth?: number;
-  headerWidth?: number;
+  position?: number;
+  tabWidth?: number;
   animating?: boolean;
 }
-
-function getPosition(width: number, activeIndex: number) {
-  return width * -activeIndex;
-}
-
 function scanState(state: State, input: StateInput) {
   state = { ...state };
-  if (input.type === 'headerWidth') {
-    state.headerWidth = input.headerWidth;
-    return state;
-  }
-  if (input.type === 'hostWidth') {
-    state.hostWidth = input.hostWidth;
+  if (input.type === 'tabWidth') {
+    state.tabWidth = input.tabWidth;
     return state;
   }
   if (input.type === 'pan') {
@@ -65,11 +53,10 @@ function scanState(state: State, input: StateInput) {
   }
 }
 
-function updateStatePositionOnIndex(state: State): State {
+function setStatePositionToIndex(state: State): State {
   return {
     ...state,
-    headerPosition: getPosition(state.headerWidth, state.activeIndex),
-    tabPosition: getPosition(state.hostWidth, state.activeIndex)
+    position: state.activeIndex
   };
 }
 
@@ -78,51 +65,36 @@ function processRequestedIndexChange(
   requestedIndex: number
 ): State {
   state.activeIndex = requestedIndex;
-  state = updateStatePositionOnIndex(state);
+  state = setStatePositionToIndex(state);
   state.animating = true;
   return state;
 }
 
 function processPan(state: State, pan: Pan): State {
-  if (state.hostWidth == null || state.headerWidth == null) {
+  if (state.tabWidth == null) {
     return state;
   }
   if (pan.isPanning) {
-    state = updateStatePositionOnIndex(state);
-    state.headerPosition = getPannedHeaderPosition(state, pan);
-    state.tabPosition += pan.position;
+    state = setStatePositionToIndex(state);
+    state.position += pan.position / state.tabWidth;
     state.animating = false;
     return state;
   }
   const newIndex = getIndexFromPan(pan, state);
   state.activeIndex = newIndex;
-  state = updateStatePositionOnIndex(state);
+  state = setStatePositionToIndex(state);
   state.animating = true;
   return state;
 }
 
-function getPannedHeaderPosition(state: State, pan: Pan): number {
-  const position =
-    state.headerPosition + (pan.position * state.headerWidth) / state.hostWidth;
-  if (position > 0) {
-    return 0;
-  }
-  const maxMoveRight = (state.tabCount - 1) * state.headerWidth;
-  if (position <= -maxMoveRight) {
-    return -maxMoveRight;
-  }
-  return position;
-}
-
 function getIndexFromPan(pan: Pan, state: State): number {
   const movedTabs = Math.floor(
-    (Math.abs(pan.position) + state.hostWidth / 2) / state.hostWidth
+    (Math.abs(pan.position) + state.tabWidth / 2) / state.tabWidth
   );
   const direction = pan.position > 0 ? 'left' : 'right';
   const newTab =
     state.activeIndex + (direction === 'right' ? 1 : -1) * movedTabs;
 
-  console.log(movedTabs);
   if (newTab >= state.tabCount) {
     return state.tabCount - 1;
   }
@@ -140,7 +112,7 @@ function getIndexFromPan(pan: Pan, state: State): number {
 export class SwiperTabGroupComponent implements OnInit {
   // Input observables
   readonly requestedIndex$ = new Subject<number>();
-  readonly hostWidth$ = new Subject<number>();
+  readonly tabWidth$ = new Subject<number>();
   readonly headerWidth$ = new Subject<number>();
   readonly panning$ = new Subject<Pan>();
 
@@ -154,11 +126,8 @@ export class SwiperTabGroupComponent implements OnInit {
         requestedIndex
       }))
     ),
-    this.hostWidth$.pipe(
-      map(hostWidth => ({ type: 'hostWidth' as const, hostWidth }))
-    ),
-    this.headerWidth$.pipe(
-      map(headerWidth => ({ type: 'headerWidth' as const, headerWidth }))
+    this.tabWidth$.pipe(
+      map(tabWidth => ({ type: 'tabWidth' as const, tabWidth }))
     ),
     this.panning$.pipe(
       debounceTime(0, animationFrameScheduler),
@@ -169,12 +138,12 @@ export class SwiperTabGroupComponent implements OnInit {
   // Outputs
 
   readonly tabTranslateX$ = this.state$.pipe(
-    map(s => s.tabPosition),
+    map(s => s.position),
     debounceTime(0, animationFrameScheduler)
   );
 
   readonly headerTranslateX$ = this.state$.pipe(
-    map(s => -s.headerPosition),
+    map(s => -s.position),
     debounceTime(0, animationFrameScheduler)
   );
 
@@ -192,19 +161,12 @@ export class SwiperTabGroupComponent implements OnInit {
   ngOnInit() {}
 
   ngAfterViewInit() {
-    this.populateHostWidth();
-    this.populateHeaderWidth();
+    this.populateTabWidth();
   }
 
-  private populateHostWidth() {
+  private populateTabWidth() {
     const boundingRect = this.host.nativeElement.getBoundingClientRect();
-    this.hostWidth$.next(boundingRect.width);
-  }
-
-  private populateHeaderWidth() {
-    const headerEl = this.headers.toArray()[0].element.nativeElement;
-    const boundingRect = headerEl.getBoundingClientRect();
-    this.headerWidth$.next(boundingRect.width);
+    this.tabWidth$.next(boundingRect.width);
   }
 
   setActiveIndex(index: number) {
