@@ -21,6 +21,8 @@ import { debounceTime, map, scan, startWith, tap } from 'rxjs/operators';
 import { SwiperTabHeaderComponent } from '../swiper-tab-header/swiper-tab-header.component';
 import { SwiperTabComponent } from '../swiper-tab/swiper-tab.component';
 
+
+
 export interface Pan {
   position: number;
   velocity: number;
