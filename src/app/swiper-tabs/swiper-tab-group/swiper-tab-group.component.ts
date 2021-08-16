@@ -146,7 +146,7 @@ export class SwiperTabGroupComponent implements OnInit {
       map(headerWidth => ({ type: 'headerWidth' as const, headerWidth }))
     ),
     this.panning$.pipe(map(pan => ({ type: 'pan' as const, pan })))
-  ).pipe(scan((acc, curr) => ({ ...acc, ...curr }), this.initState));
+  ).pipe(scan((state, input) => scanState(state, input), this.initState));
 
   // Outputs
 
